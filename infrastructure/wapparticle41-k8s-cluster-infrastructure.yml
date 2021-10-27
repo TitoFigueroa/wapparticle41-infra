@@ -41,8 +41,7 @@ Resources:
     Type: 'AWS::EKS::Cluster'
     Properties:
       Name: !Sub ${Environment}-${ClusterName}
-      Version: '1.14'
-      RoleArn: !Ref Wapparticle41eksClusterRole
+      RoleArn: !GetAtt  Wapparticle41eksClusterRole.Arn
       ResourcesVpcConfig:
         SecurityGroupIds:
         - !Ref NodeSecurityGroup
@@ -65,11 +64,29 @@ Resources:
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
 
+  Wapparticle41eksNodesRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      Path: /
+
   EKSNodegroup:
       Type: 'AWS::EKS::Nodegroup'
       Properties:
-        ClusterName: !Sub ${Environment}-${NodeGroupName}
-        NodeRole: !Ref Wapparticle41eksClusterRole
+        ClusterName: !Ref Wapparticle41EKSCluster
+        NodeRole:  !GetAtt Wapparticle41eksNodesRole.Arn
         InstanceTypes: 
           - !FindInMap [EnvironmentMaps, !Ref Environment, NodeInstanceType]
         ScalingConfig:
