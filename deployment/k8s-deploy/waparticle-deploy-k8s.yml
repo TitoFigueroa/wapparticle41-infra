@@ -39,5 +39,3 @@ spec:
       port: 80
       targetPort: 8080
       nodePort: 30080
-  externalIps:
-    - 127.0.0.1
