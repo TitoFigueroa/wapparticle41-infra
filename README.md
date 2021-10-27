@@ -21,6 +21,7 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Deploy to k8s](#deployment)
+- [ Deploy AWS Cloudformation Stacks](#aws_stacks)
 - [Built Using](#built_using)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
@@ -35,16 +36,14 @@ The Kubernetes cluster contains the deployment of the containers with 3 pod repl
 
 ### Prerequisites
 
-- AWS CLI (used to deploy the cloudformation template)
 - AWS accounts with permissions (this will allow your user to do the deployment using the cft)
+- AWS Already created KeyPairs with the name "wappraticle41-keypair"
 - Kubernetes (used to deploy the manifest of the app)
 
 In case you dont have any of this please review links below that could help to install this prerequisites on your local environment
 
 ```
 https://k3s.io/ --> a light weight Linux kubernetes version to install on your locall 
-https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
-
 ```
 
 ## Deploy to k8s
@@ -52,9 +51,29 @@ https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
 In order to spin up the app inside a kubernetes cluster you must execute the next command:
 
 ```
-kubectl apply -f microservice.yml
+kubectl apply -f https://raw.githubusercontent.com/TitoFigueroa/wapparticle41-infra/main/deployment/k8s-deploy/waparticle-deploy-k8s.yml
 ```
 
+## Deploy AWS Cloudformation Stacks
+
+Login into aws console, go to cloudformation stacks and create new one, follow next steps:
+
+```
+VPC STACK CREATION
+1) Create a stack uploading the template on the "Template is ready" option
+2) Next stage will ask for a stack name, thats something you can handle
+3) This step requires pass a parameter of environment, write "dev" please (for testing purpose)
+4) Click Next, until you get deploy stack
+5) See how the stack is created succesfully ;) 
+```
+
+```
+K8S CLUSTER STACK CREATION
+1) Create a stack uploading the template on the "Template is ready" option
+2) Next stage will ask for a stack name, thats something you can handle
+3) Click Next, until you get deploy stack
+4) See how the stack is created succesfully ;) 
+```
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 
