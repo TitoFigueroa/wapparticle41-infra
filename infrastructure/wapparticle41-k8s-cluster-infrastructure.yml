@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: Amazon EKS - Node Group
+Description: Amazon EKS - Node Group for wapparticle41
 
 Parameters:
 
@@ -9,26 +9,6 @@ Parameters:
     Type: String
     AllowedPattern: "^(dev|qa|perf|prod)[0-9]?$"
     Default: "dev"
-
-  KeyName:
-    Description: The EC2 Key Pair to allow SSH access to the instances
-    Type: AWS::EC2::KeyPair::KeyName
-    Default: "wapparticle41-keypair"
-
-  NodeAutoScalingGroupMinSize:
-    Description: Minimum size of Node Group ASG.
-    Type: Number
-    Default: 2
-
-  NodeAutoScalingGroupMaxSize:
-    Description: Maximum size of Node Group ASG. Set to at least 1 greater than NodeAutoScalingGroupDesiredCapacity.
-    Type: Number
-    Default: 2
-
-  NodeAutoScalingGroupDesiredCapacity:
-    Description: Desired capacity of Node Group ASG.
-    Type: Number
-    Default: 2
 
   ClusterName:
     Description: The cluster name provided when the cluster was created. If it is incorrect, nodes will not be able to join the cluster.
@@ -57,28 +37,51 @@ Mappings:
 
 Resources:
 
-  NodeInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
+  Wapparticle41EKSCluster:
+    Type: 'AWS::EKS::Cluster'
     Properties:
-      Path: "/"
-      Roles:
-        - !Ref NodeInstanceRole
+      Name: !Sub ${Environment}-${ClusterName}
+      Version: '1.14'
+      RoleArn: !Ref Wapparticle41eksClusterRole
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+        - !Ref NodeSecurityGroup
+        SubnetIds:
+        - "{{resolve:ssm:ksprivsubnet1:1}}" 
+        - "{{resolve:ssm:ksprivsubnet2:1}}" 
 
-  NodeInstanceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
+  Wapparticle41eksClusterRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
           - Effect: Allow
             Principal:
-              Service: ec2.amazonaws.com
-            Action: sts:AssumeRole
-      Path: "/"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
-        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+              Service:
+              - eks.amazonaws.com
+            Action:
+            - sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+
+  EKSNodegroup:
+      Type: 'AWS::EKS::Nodegroup'
+      Properties:
+        ClusterName: !Sub ${Environment}-${NodeGroupName}
+        NodeRole: !Ref Wapparticle41eksClusterRole
+        InstanceTypes: 
+          - !FindInMap [EnvironmentMaps, !Ref Environment, NodeInstanceType]
+        ScalingConfig:
+          MinSize: 2
+          DesiredSize: 2
+          MaxSize: 2
+        Labels:
+          Key1: Value1
+          Key2: Value2
+        Subnets:
+          - "{{resolve:ssm:ksprivsubnet1:1}}" 
+          - "{{resolve:ssm:ksprivsubnet2:1}}" 
 
   NodeSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -149,61 +152,7 @@ Resources:
       ToPort: 443
       FromPort: 443
 
-  NodeGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      DesiredCapacity: !Ref NodeAutoScalingGroupDesiredCapacity
-      LaunchConfigurationName: !Ref NodeLaunchConfig
-      MinSize: !Ref NodeAutoScalingGroupMinSize
-      MaxSize: !Ref NodeAutoScalingGroupMaxSize
-      VPCZoneIdentifier: 
-        - "{{resolve:ssm:ksprivsubnet1:1}}" 
-        - "{{resolve:ssm:ksprivsubnet2:1}}" 
-      Tags:
-        - Key: Name
-          Value: !Sub ${ClusterName}-${NodeGroupName}-Node
-          PropagateAtLaunch: true
-        - Key: !Sub kubernetes.io/cluster/${ClusterName}
-          Value: owned
-          PropagateAtLaunch: true
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MaxBatchSize: 1
-        MinInstancesInService: !Ref NodeAutoScalingGroupDesiredCapacity
-        PauseTime: PT5M
-
-  NodeLaunchConfig:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
-      AssociatePublicIpAddress: true
-      IamInstanceProfile: !Ref NodeInstanceProfile
-      ImageId: ami-029cc87a315700ad4
-      InstanceType: !FindInMap [EnvironmentMaps, !Ref Environment, NodeInstanceType]
-      KeyName: !Ref KeyName
-      SecurityGroups:
-        - !Ref NodeSecurityGroup
-      BlockDeviceMappings:
-        - DeviceName: /dev/xvda
-          Ebs:
-            VolumeSize: !FindInMap [EnvironmentMaps, !Ref Environment, NodeVolumeSize]
-            VolumeType: gp2
-            DeleteOnTermination: true
-      UserData:
-        Fn::Base64:
-          !Sub |
-            #!/bin/bash
-            set -o xtrace
-            /etc/eks/bootstrap.sh ${ClusterName}
-            /opt/aws/bin/cfn-signal --exit-code $? \
-                     --stack  ${AWS::StackName} \
-                     --resource NodeGroup  \
-                     --region ${AWS::Region}
-
 Outputs:
-
-  NodeInstanceRole:
-    Description: The node instance role
-    Value: !GetAtt NodeInstanceRole.Arn
 
   NodeSecurityGroup:
     Description: The security group for the node group
