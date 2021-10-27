@@ -50,6 +50,8 @@ https://k3s.io/ --> a light weight Linux kubernetes version to install on your l
 
 In order to spin up the app inside a kubernetes cluster you must execute the next command:
 
+###  Files under "/deployment" folder
+
 ```
 kubectl apply -f https://raw.githubusercontent.com/TitoFigueroa/wapparticle41-infra/main/deployment/k8s-deploy/waparticle-deploy-k8s.yml
 ```
@@ -58,8 +60,10 @@ kubectl apply -f https://raw.githubusercontent.com/TitoFigueroa/wapparticle41-in
 
 Login into aws console, go to cloudformation stacks and create new one, follow next steps:
 
+### Files under "/infrastructure" folder
+
 ```
-VPC STACK CREATION
+VPC STACK CREATION ()
 1) Create a stack uploading the template on the "Template is ready" option
 2) Next stage will ask for a stack name, thats something you can handle
 3) This step requires pass a parameter of environment, write "dev" please (for testing purpose)
