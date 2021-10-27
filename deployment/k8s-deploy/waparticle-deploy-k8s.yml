@@ -37,3 +37,5 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
+  externalIps:
+    - 127.0.0.1

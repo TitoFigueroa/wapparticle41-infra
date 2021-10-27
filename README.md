@@ -21,7 +21,6 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Deploy to k8s](#deployment)
-- [Running a tests](#usage)
 - [Built Using](#built_using)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
@@ -56,12 +55,6 @@ In order to spin up the app inside a kubernetes cluster you must execute the nex
 kubectl apply -f microservice.yml
 ```
 
-
-## 🔧 Running a tests <a name = "tests"></a>
-
-A simple way to test it is opening on the browser next ip:port address -> http://127.0.0.1:8080
-
-NOTE: if you have a local lan you can try hit the ipv4 address of the hosting computer, and it will show you the client ipAddress (yours ip)
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 
