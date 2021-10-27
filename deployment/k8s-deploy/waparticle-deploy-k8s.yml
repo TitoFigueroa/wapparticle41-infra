@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: wapparticle41
-        image: wapparticle41:v0.0.1
+        image: jfrace/wapparticle41:v0.0.1
         resources:
               limits:
                 memory: "128Mi"
