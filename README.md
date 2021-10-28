@@ -21,7 +21,8 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Deploy to k8s](#deployment)
-- [ Deploy AWS Cloudformation Stacks](#aws_stacks)
+- [Running a test on k8s deploy](#testing)
+- [Deploy AWS Cloudformation Stacks](#aws_stacks)
 - [Built Using](#built_using)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
@@ -54,6 +55,18 @@ In order to spin up the app inside a kubernetes cluster you must execute the nex
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/TitoFigueroa/wapparticle41-infra/main/deployment/k8s-deploy/wapparticle-deploy-k8s.yml
+```
+
+## Running a test on k8s deploy
+
+If you are trying on the local server
+```
+curl localhost:30080
+```
+
+IF you are trying to hit the server from outside local environment
+```
+curl ipaddress:30080 or curl hostname:30080
 ```
 
 ## Deploy AWS Cloudformation Stacks
