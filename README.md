@@ -53,7 +53,7 @@ In order to spin up the app inside a kubernetes cluster you must execute the nex
 ###  Files under "/deployment" folder
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/TitoFigueroa/wapparticle41-infra/main/deployment/k8s-deploy/waparticle-deploy-k8s.yml
+kubectl apply -f https://raw.githubusercontent.com/TitoFigueroa/wapparticle41-infra/main/deployment/k8s-deploy/wapparticle-deploy-k8s.yml
 ```
 
 ## Deploy AWS Cloudformation Stacks
